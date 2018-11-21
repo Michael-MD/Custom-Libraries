@@ -121,7 +121,7 @@ class cylindricalCanvas(canvasSetup):
 			self.move([radius, 0])
 			tl.write(-radius)
 
-		for angle in range(0,360, angleSpacing):	#angles
+		for angle in range(0,180, angleSpacing):	#angles
 			self.line(self.coordConversion([maxrad, angle+180]),self.coordConversion([maxrad, angle]))
 			tl.write(angle)
 
