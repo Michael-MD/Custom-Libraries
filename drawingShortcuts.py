@@ -117,11 +117,11 @@ class cylindricalCanvas(canvasSetup):
 		for radius in range(0, int(maxrad), spacings):	#concentric circles
 			self.circle([0,0], radius)
 		
-		for radius in range(0, int(maxrad), spacings):
+		for radius in range(0, int(maxrad), spacings):	#labels
 			self.move([radius, 0])
 			tl.write(-radius)
 
 		for angle in range(0,360, angleSpacing):	#angles
-			self.line([0,0],self.coordConversion([maxrad, angle]))
+			self.line(self.coordConversion([maxrad, angle+180]),self.coordConversion([maxrad, angle]))
 			tl.write(angle)
 
