@@ -1,7 +1,8 @@
 import turtle as tl
 import numpy as np
 
-class Canvas():
+
+class canvasSetup():
 	def __init__(self , canvasDimensions , strokeThickness = 2):
 		self.window = tl.Screen()		#initilize window size
 		self.Dimensions = canvasDimensions
@@ -13,7 +14,7 @@ class Canvas():
 
 	def move(self, coords):
 		tl.penup()
-		tl.goto(coords[0] , coords[1])
+		tl.setpos(coords[0] , coords[1])
 		tl.pendown()
 
 	def line(self, startCoords, endCoords):
@@ -23,6 +24,7 @@ class Canvas():
 		tl.update()
 
 	def rectangle(self, center, w, h, rotAngle = 0, centalRot = False):
+		center = self.coordConversion(center)
 		segment = np.divide([w,h],2)
 		rotMatrix = np.array((  (np.cos(rotAngle*np.pi/180),np.sin(-rotAngle*np.pi/180)) , (np.sin(rotAngle*np.pi/180),np.cos(rotAngle*np.pi/180))  ))
 	
@@ -40,27 +42,6 @@ class Canvas():
 
 		tl.update()
 
-
-	def grid(self, spacings, grid = False):
-		#vertical lines
-		for spacing in range(-int(self.Dimensions[0]/2),int(self.Dimensions[0]/2),spacings):		#vetrical spacing
-			self.line([-spacing,-self.Dimensions[1]/2],[-spacing,self.Dimensions[1]/2])
-			tl.write(-spacing)
-			
-		#horizontal lines
-		for spacing in range(-int(self.Dimensions[1]/2),int(self.Dimensions[1]/2),spacings):		#horizontal spacing
-			self.line([-self.Dimensions[0]/2,-spacing],[self.Dimensions[0]/2,-spacing])
-			tl.write(-spacing)
-
-		if grid:
-			tl.pensize(8)
-			#horizontal axis
-			self.line([-int(self.Dimensions[0]/2),0],[int(self.Dimensions[0]/2),0])
-			#vertical axis
-			self.line([0,-int(self.Dimensions[1]/2)],[0,int(self.Dimensions[1]/2)])
-			tl.pensize(self.defaultStroke)
-	tl.update()
-
 	# def text(self, message):
 	# 	tl.write("messi fan", font=("Arial", 16, "normal"))
 
@@ -69,7 +50,8 @@ class Canvas():
 
 
 	def circle(self, center, radius):
-		self.move(center)
+		center = self.coordConversion(center)
+		self.move([center[0], center[1]-radius])
 		tl.circle(radius)
 
 		tl.update()
@@ -90,13 +72,58 @@ class Canvas():
 
 
 
-class AdvancedCanvas(Canvas):
-	def changeColor(self, newColor):
-		tl.color(newColor)
+class cartesianCanvas(canvasSetup):
+	def coordConversion(self, coords):	#do nothing if already in cartesian coordinates
+		return coords
 
-	def changeStrokeThickness(self, newThickness):
-		tl.pensize(newThickness)
-		self.defaultStroke = newThickness
+	def grid(self, spacings, grid = False):
+		#vertical lines
+		for spacing in range(-int(self.Dimensions[0]/2),int(self.Dimensions[0]/2),spacings):		#vetrical spacing
+			self.line([-spacing,-self.Dimensions[1]/2],[-spacing,self.Dimensions[1]/2])
+			tl.write(-spacing)
+			
+		#horizontal lines
+		for spacing in range(-int(self.Dimensions[1]/2),int(self.Dimensions[1]/2),spacings):		#horizontal spacing
+			self.line([-self.Dimensions[0]/2,-spacing],[self.Dimensions[0]/2,-spacing])
+			tl.write(-spacing)
+
+		if grid:
+			tl.pensize(8)
+			#horizontal axis
+			self.line([-int(self.Dimensions[0]/2),0],[int(self.Dimensions[0]/2),0])
+			#vertical axis
+			self.line([0,-int(self.Dimensions[1]/2)],[0,int(self.Dimensions[1]/2)])
+			tl.pensize(self.defaultStroke)
+		tl.update()
+
+	# def text(self, message):
+	# 	tl.write("messi fan", font=("Arial", 16, "normal"))
+
+
+
+class cylindricalCanvas(canvasSetup):
+	def coordConversion(self, coords):	#convert cylindrical to cartesian coordinates
+		ccoords = [None]*2
+		ccoords[0] = coords[0]*np.cos(coords[1]*np.pi/180)	#x
+		ccoords[1] = coords[0]*np.sin(coords[1]*np.pi/180)	#y
+		return ccoords
+
+	def grid(self, spacings, angleSpacing = 10):
+		if self.Dimensions[0] < self.Dimensions[1]:
+			maxrad = self.Dimensions[0]/2
+		else:
+			maxrad = self.Dimensions[1]/2
+
+		for radius in range(0, int(maxrad), spacings):	#concentric circles
+			self.circle([0,0], radius)
+			tl.write(-radius)
+
+		for angle in range(0,360, angleSpacing):	#angles
+			self.line([0,0],self.coordConversion([maxrad, angle]))
+			tl.write(angle)
+
+
+
 
 
 
